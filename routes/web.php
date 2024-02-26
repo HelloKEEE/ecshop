@@ -63,3 +63,5 @@ Route::any('/login', [UserController::class, "login"])->name('login');
 
 Route::any('/logout', [UserController::class, "logout"])->name('logout');
 
+// add pages about carts
+
