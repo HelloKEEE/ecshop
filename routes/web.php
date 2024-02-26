@@ -59,7 +59,11 @@ Route::any('/user/add', [UserController::class, "add"])->name('user.add')->middl
 
 Route::any('/user/edit', [UserController::class, "edit"])->name('user.edit');
 
+<<<<<<< HEAD
 Route::any('/login', [UserController::class, "login"])->name('user_login');
+=======
+Route::any('/login', [UserController::class, "login"])->name('user.login');
+>>>>>>> main
 
 Route::any('/logout', [UserController::class, "logout"])->name('user.logout');
 
