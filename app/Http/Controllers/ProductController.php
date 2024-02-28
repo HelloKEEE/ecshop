@@ -56,6 +56,8 @@ class ProductController extends Controller
     public function detail(Request $request, $id = null)
     {
         $product = $this->ProductRepository->dodetail($id);
+
+       
         
         return view("product.detail", array("product" => $product));
        

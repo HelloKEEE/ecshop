@@ -6,25 +6,30 @@
     <body class="antialiased">
         <div class="">
             <div class="badge bg-secondary text-wrap" style="width: 60rem;">
-            product information
+            your cart's detail
             </div>
             <br/>
             <table class="table table-striped" style="width: 60% ; margin:auto; ">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Name</th>
-                        <th>category_id</th>
-                        <th>category_introduction</th>
+                        <th>Your Name</th>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th>order time</th>
                     </tr>
                 </thead>
                 <tbody>
+
+                @foreach ($carts as $cart)
                     <tr>
-                        <td>{{ $product->id}}</td>
-                        <td>{{ $product->name}}</td>
-                        <td>{{ $product->category_id}}</td>
-                        <td>{{ $product->category->introduction}}</td>
+                        <td>{{ $cart->id}}</td>
+                        <td>{{ $cart->user->name}}</td>
+                        <td>{{ $cart->product->name}}</td>
+                        <td>{{ $cart->quantity}}</td>
+                        <td>{{ $cart->created_at}}</td>
                     </tr>
+                @endforeach
                 </tbody>
             </table>
             <br>

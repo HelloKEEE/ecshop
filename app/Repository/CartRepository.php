@@ -1,12 +1,13 @@
 <?php
 namespace App\Repository;
 
-use App\Models\User;
 use App\Models\Cart;
+use App\Models\Product;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 
-class UserRepository implements UserRepositoryInterface
+class CartRepository implements CartRepositoryInterface
 {
 
     public function search(array $data)
@@ -48,23 +49,42 @@ class UserRepository implements UserRepositoryInterface
 
         return $User;
     }
-    public function doadd(array $data){
 
-        $User = new User();
-        $User->name = $data["name"];
-        $User->email = $data["email"];
-        $User->password = $data["password"];
-        $User->save();
+    public function doAdd(array $data){
 
-        return $User;
+        $cart = new Cart();
+        $cart->user_id = $data["user_id"];
+        $cart->product_id = $data["product_id"];
+        $cart->quantity = $data["quantity"];
+        $cart->save();
+
+        return $cart;
     }
 
-    public function dodetail($id){
+    public function doDetail($user_id){
         
-        $user = user::find($id);
+        
+        $carts=Cart::where('user_id',$user_id)->get();
 
-        
-        return $user;
+        // foreach ($carts as $cart){
+        //     $product_id = $cart['product_id'];
+        //     $product= Product::find($product_id);
+
+        //     if($product){
+        //         $product_name = $product->name;
+        //         $cart['product_name']=$product_name;
+        //     }
+
+        //     $user_id = $cart['user_id'];
+        //     $user= User::find($user_id);
+
+        //     if($user){
+        //         $user_name = $user->name;
+        //         $cart['user_name']=$user_name;
+        //     }
+        // }
+
+        return $carts;
     }
 
     public function dodelete($data){

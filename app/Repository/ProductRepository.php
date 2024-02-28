@@ -3,6 +3,7 @@ namespace App\Repository;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Cart;
 
 class ProductRepository implements ProductRepositoryInterface
 {
@@ -56,6 +57,8 @@ class ProductRepository implements ProductRepositoryInterface
 
 
         $product = product::find($id);
+
+        dd($product);
 
         return $product ;
     }

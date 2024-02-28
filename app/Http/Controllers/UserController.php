@@ -30,6 +30,12 @@ class UserController extends Controller
                 
                 session()->flash('success', 'ログイン成功しました。');
 
+                $email = $request -> input("email");
+                $user = User::where('email', $email)->first(); 
+                
+                session(['user_name' => $user['name']]);
+                session(['user_id' => $user['id']]);
+
                 return redirect()->route("user.index");
 
             } else {

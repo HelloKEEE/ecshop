@@ -59,9 +59,12 @@ Route::any('/user/add', [UserController::class, "add"])->name('user.add')->middl
 
 Route::any('/user/edit', [UserController::class, "edit"])->name('user.edit');
 
-Route::any('/login', [UserController::class, "login"])->name('user.login');
+Route::any('/login', [UserController::class, "login"])->name('login');
 
 Route::any('/logout', [UserController::class, "logout"])->name('user.logout');
 
-// add pages about carts
+// add pages about cart
+Route::any('/cart/add', [CartController::class, "add"])->name('cart.add')->middleware('auth');
+
+Route::any('/cart/detail', [CartController::class, "detail"])->name('cart.detail')->middleware('auth');
 
