@@ -50,7 +50,7 @@ class CartController extends Controller
                 'integer',
             ]
         ], [
-            "quantity.required" => "入力しないとCARTに入れません。",
+            "quantity.required" => "入力しないと入れません。",
             "quantity.integer" => "数字を入力してください。"
         ]);
 
