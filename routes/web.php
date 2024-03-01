@@ -25,7 +25,7 @@ Route::get('/hello', [ProductController::class, "index"]) ;
 Route::get('/carts', [CartController::class, "index"]);
 
 //category
-Route::get('/categories', [CategoryController::class, "index"])->name('category.index');    
+Route::get('/categories', [CategoryController::class, "index"])->name('category.index');
 
 Route::get('/category/{id?}', [CategoryController::class, "detail"])->where('id', '[0-9]+')->name("category.detail");
 
@@ -37,7 +37,7 @@ Route::any('/category/edit', [CategoryController::class, "edit"])->name('categor
 
 
 //product
-Route::get('/products', [ProductController::class, "index"])->name('product.index');    
+Route::get('/products', [ProductController::class, "index"])->name('product.index');
 
 Route::get('/product/{id?}', [ProductController::class, "detail"])->where('id', '[0-9]+')->name("product.detail");
 
@@ -49,7 +49,7 @@ Route::any('/product/edit', [ProductController::class, "edit"])->name('product.e
 
 
 //user
-Route::get('/users', [UserController::class, "index"])->name('user.index');    
+Route::get('/users', [UserController::class, "index"])->name('user.index');
 
 Route::get('/user/{id?}', [UserController::class, "detail"])->where('id', '[0-9]+')->name("user.detail");
 
@@ -64,7 +64,16 @@ Route::any('/login', [UserController::class, "login"])->name('login');
 Route::any('/logout', [UserController::class, "logout"])->name('user.logout');
 
 // add pages about cart
+Route::any('/carts', [CartController::class, "index"])->name('cart.index')->middleware('auth');
+
+Route::any('/cart/update', [CartController::class, "update"])->name('cart.update')->middleware('auth');
+
 Route::any('/cart/add', [CartController::class, "add"])->name('cart.add')->middleware('auth');
 
-Route::any('/cart/detail', [CartController::class, "detail"])->name('cart.detail')->middleware('auth');
+Route::any('/cart/increase', [CartController::class, "increase"])->name('cart.increase')->middleware('auth');
 
+Route::any('/cart/reduce', [CartController::class, "reduce"])->name('cart.reduce')->middleware('auth');
+
+Route::any('/cart/remove', [CartController::class, "remove"])->name('cart.remove')->middleware('auth');
+
+Route::any('/cart/clear', [CartController::class, "clear"])->name('cart.clear')->middleware('auth');

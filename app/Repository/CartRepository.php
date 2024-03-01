@@ -1,44 +1,46 @@
 <?php
+
 namespace App\Repository;
 
 use App\Models\Cart;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Repository\ProductRepositoryInterface;
+use App\Repository\ProductRepository;
 
 
 class CartRepository implements CartRepositoryInterface
 {
 
+    public function __construct(
+        protected ProductRepositoryInterface $productRepository,
+    )
+    {
+    }
+
     public function search(array $data)
     {
-        $User = User::query();
+        $cart = Cart::query();
 
-        if(!empty($data["id"])) {
-            $User->where('id', 'like', '%' . $data["id"] . '%' );
+        if (!empty($data["id"])) {
+            $cart->where('id', $data["id"]);
         }
-        if(!empty($data["name"])) {
-            $User->where('name', 'like', '%' . $data["name"] . '%' );
+        if (!empty($data["user_id"])) {
+            $cart->where('user_id', $data["user_id"]);
         }
-        if(!empty($data["email"])) {
-            $User->where('email', 'like', '%' . $data["email"] . '%' );
-        }
-        // if(!empty($data["email_verified_at"])) {
-        //     $User->where('email_verified_at', 'like', '%' . $data["email_verified_at"] . '%' );
-        // }
-        if(!empty($data["password"])) {
-            $User->where('password', 'like', '%' . $data["password"] . '%' );
+        if (!empty($data["product_id"])) {
+            $cart->where('product_id', $data["product_id"]);
         }
 
-        $User = $User->get();
 
-
-        return $User;
+        return $cart;
     }
 
 
-    public function doedit(array $data){
-        
+    public function doedit(array $data)
+    {
+
         $id = $data["id"];
         $User = User::find($id);
 
@@ -50,7 +52,9 @@ class CartRepository implements CartRepositoryInterface
         return $User;
     }
 
-    public function doAdd(array $data){
+    public function doAdd(array $data)
+    {
+
 
         $cart = new Cart();
         $cart->user_id = $data["user_id"];
@@ -61,10 +65,11 @@ class CartRepository implements CartRepositoryInterface
         return $cart;
     }
 
-    public function doDetail($user_id){
-        
-        
-        $carts=Cart::where('user_id',$user_id)->get();
+    public function doDetail($user_id)
+    {
+
+
+        $carts = Cart::where('user_id', $user_id)->get();
 
         // foreach ($carts as $cart){
         //     $product_id = $cart['product_id'];
@@ -87,13 +92,68 @@ class CartRepository implements CartRepositoryInterface
         return $carts;
     }
 
-    public function dodelete($data){
-        
+    public function delete($data)
+    {
 
-        $user = User::findOrFail($data["id"]);
+        if (!empty($data['product_id'])) {
+            $cart = Cart::where('product_id', $data['product_id'])
+                ->where('user_id', $data['user_id']);
+        } else {
+            $cart = Cart::where('user_id', $data['user_id']);
+        }
+        $cart->delete();
 
-        $user->delete();
+        return true;
+    }
 
-        return $user;
+    public function checkExist(User $user, Product $product): bool
+    {
+
+        $cart = Cart::where('user_id', $user->id)->where('product_id', $product->id)->get();
+
+
+        if ($cart->isNotEmpty()) {
+            return true;
+        } else {
+            return false;
+        };
+    }
+
+    public function updateQuantity(User $user, Product $product, $quantity)
+    {
+
+        $cart = Cart::where('user_id', $user->id)->where('product_id', $product->id)->first();
+        $cart->quantity += $quantity;
+        $cart->save();
+        return true;
+    }
+
+    public function update(User $user, Product $product, $quantity)
+    {
+
+        $cart = Cart::where('user_id', $user->id)->where('product_id', $product->id)->first();
+
+        //入力したQUANTITY　は元CARTのQUANTITYより　少なくなった場合
+        if ($quantity < $cart->quantity) {
+
+            //余ったQUANTITYを　productのstockを返す
+            $newStock = $cart->quantity - $quantity;
+            $product->stock += $newStock;
+            $product->save();
+        }
+
+        //入力したQUANTITY　は元CARTのQUANTITYより　多くなった場合
+        if ($quantity > $cart->quantity) {
+
+            //足りないQUANTITYを　productのstockから取得する
+            $newStock = $quantity - $cart->quantity;
+            $product->stock -= $newStock;
+            $product->save();
+        }
+
+        $cart->quantity = $quantity;
+        $cart->save();
+
+        return true;
     }
 }

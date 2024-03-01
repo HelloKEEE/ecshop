@@ -4,69 +4,173 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use Illuminate\Support\Facades\DB;
-use App\Models\Cart;
+
+
 use App\Models\Product;
-use App\Models\User;
-use App\Models\Category;
-use Illuminate\Support\Facades\Validator;
-use App\Repository\CartRepository;
 use App\Repository\CartRepositoryInterface;
+use App\Repository\ProductRepositoryInterface;
+use App\Service\CartServiceInterface;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class CartController extends Controller
 {
 
     public function __construct(
-        protected CartRepositoryInterface $CartRepository,
-    ) {}
+        protected CartRepositoryInterface    $cartRepository,
+        protected ProductRepositoryInterface $productRepository,
+        protected CartServiceInterface       $cartService,
+    )
+    {
+    }
+
+    public function index(Request $request)
+    {
+
+        $user = Auth::user();
+
+        $carts = $this->cartService->getCart($user);
+
+        return view("cart.index", array(
+            "carts" => $carts
+        ));
+    }
 
     public function add(Request $request)
     {
-        if($request->isMethod("POST")) {
+        $product_id = $request->input('product_id');
+        $quantity = $request->input('quantity');
 
-            $user_id = $request->input('user_id');
-            $product_id = $request->input('product_id');
-            $quantity = $request->input('quantity');
+        $user = Auth::user();
+        $product = Product::find($product_id);
 
-            $data = array();
+        $validator = Validator::make($request->all(), [
+            'quantity' => [
+                'required',
+                'integer',
+            ]
+        ], [
+            "quantity.required" => "入力しないとCARTに入れません。",
+            "quantity.integer" => "数字を入力してください。"
+        ]);
 
-            if($user_id) {
-                $data["user_id"] = $user_id;
-            }
-            if($product_id) {
-                $data["product_id"] = $product_id;
-            }
-            if($quantity) {
-                $data["quantity"] = $quantity;
-            }
-
-            
-            $cart = $this->CartRepository->doAdd($data);
-
-            return redirect()->route("cart.detail");
-
-        } else {
-
-            $products = Product::all();
-
-            return view("cart.add", array(
-                "products" => $products
-            ));
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
         }
+
+        $result = $this->cartService->add($user, $product, $quantity);
+
+        if (!$result) {
+            $request->session()->flash("error", "can not add to cart");
+            return redirect()->back();
+        }
+
+        return redirect()->route('cart.index');
+
     }
 
-    public function detail(Request $request){
+    public function update(Request $request)
+    {
 
-        $user_id = session('user_id');
+        $quantity = intval($request->input('quantity'));
+        $product_id = $request->input('product_id');
+
+        $user = Auth::user();
+        $product = Product::find($product_id);
+        $cart_quantity = $request->input('cart_quantity');
+
+        $validator = Validator::make($request->all(), [
+            'quantity' => [
+                'required',
+            ]
+        ], [
+            "quantity.required" => "入力しないと変更できせん。",
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
 
 
-        $carts = $this->CartRepository->doDetail($user_id);
+        if (!$quantity) {
+            $result = $this->cartService->reduce($user, $product, $cart_quantity);
+        } else {
+            $result = $this->cartRepository->update($user, $product, $quantity);
+        }
+
+        if (!$result) {
+            $request->session()->flash("error", "Can not update quantity");
+            return redirect()->back();
+        }
+
+        return redirect()->route('cart.index');
+    }
+
+    public function increase(Request $request)
+    {
+        $product_id = $request->input('product_id');
 
 
-        return view("cart.detail", array(
-            "carts" => $carts
-        ));
+        $user = Auth::user();
+        $product = Product::find($product_id);
+
+        $result = $this->cartService->increase($user, $product);
+
+        if (!$result) {
+            $request->session()->flash("error", "increase fail");
+            return redirect()->back();
+        }
+
+        return redirect()->route('cart.index');
+
+    }
+
+    public function reduce(Request $request)
+    {
+        $product_id = $request->input('product_id');
+
+
+        $user = Auth::user();
+        $product = Product::find($product_id);
+
+        $result = $this->cartService->reduce($user, $product);
+
+        if (!$result) {
+            $request->session()->flash("error", "reduce fail");
+            return redirect()->back();
+        }
+
+        return redirect()->route('cart.index');
+
+    }
+
+    public function remove(Request $request)
+    {
+        $product_id = $request->input('product_id');
+        $product = Product::find($product_id);
+
+
+        $result = $this->cartService->remove(Auth::user(), $product);
+
+        if (!$result) {
+            $request->session()->flash("error", "remove fail");
+            return redirect()->back();
+        }
+
+        return redirect()->route('cart.index');
+
+    }
+
+    public function clear(Request $request)
+    {
+
+        $user = Auth::user();
+
+        $this->cartService->clear($user);
+
+        return redirect()->route('cart.index');
+
+
     }
 }
 

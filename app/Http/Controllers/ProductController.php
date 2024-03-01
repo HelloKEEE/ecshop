@@ -21,30 +21,32 @@ class ProductController extends Controller
 {
 
     public function __construct(
-        protected ProductRepositoryInterface $ProductRepository,
+        protected ProductRepositoryInterface  $ProductRepository,
         protected CategoryRepositoryInterface $categoryRepository,
-    ) {}
+    )
+    {
+    }
 
-    
+
     public function index(Request $request)
-    {        
+    {
 
         $id = $request->input('id');
         $name = $request->input('name');
         $price = $request->input('price');
 
         $data = array();
-        if($id) {
+        if ($id) {
             $data["id"] = $id;
         }
-        if($name) {
+        if ($name) {
             $data["name"] = $name;
         }
-        if($price) {
+        if ($price) {
             $data["price"] = $price;
         }
 
-        
+
         $products = $this->ProductRepository->search($data);
 
         return view("product.index", array(
@@ -57,18 +59,17 @@ class ProductController extends Controller
     {
         $product = $this->ProductRepository->dodetail($id);
 
-       
-        
+
         return view("product.detail", array("product" => $product));
-       
+
     }
 
     public function delete(Request $request)
     {
         $id = $request->input('id');
-        
+
         $data = array();
-        if($id) {
+        if ($id) {
             $data["id"] = $id;
         }
 
@@ -76,17 +77,17 @@ class ProductController extends Controller
 
         return redirect()->route('product.index');
     }
-    
+
 
     public function add(Request $request)
     {
 
-      
+
         $name = $request->input('name');
         $price = $request->input('price');
         $category_id = $request->input('category_id');
 
-        if ($request->isMethod("POST")){
+        if ($request->isMethod("POST")) {
 
             $validator = Validator::make($request->all(), $this->getValidationRules("add"), $this->getValidationMessages("add"));
 
@@ -117,17 +118,17 @@ class ProductController extends Controller
         $name = $request->input('name');
         $price = $request->input('price');
         $category_id = $request->input('category_id');
-        
 
-        if ($request->isMethod("POST")){
+
+        if ($request->isMethod("POST")) {
 
             $validator = Validator::make($request->all(), $this->getValidationRules("edit"), $this->getValidationMessages("edit"));
 
- 
+
             if ($validator->fails()) {
                 return redirect()->back()->withErrors($validator)->withInput();
             }
-            
+
             $data = array();
             $data["id"] = $id;
             $data["name"] = $name;
@@ -146,10 +147,10 @@ class ProductController extends Controller
     private function getValidationRules(string $type)
     {
 
-        $result  = [
+        $result = [
             'name' => [
-                'required', 
-                'unique:categories,name', 
+                'required',
+                'unique:categories,name',
                 'max:255',
                 function (string $attribute, mixed $value, Closure $fail) {
                     if (strpos($value, "fuck") !== false) {
@@ -160,7 +161,7 @@ class ProductController extends Controller
             'price' => ["required", "integer"],
             'category_id' => ["required", "integer"]
         ];
-        if($type == "add") {
+        if ($type == "add") {
             $result["id"] = [
                 'required',
                 'integer',
@@ -174,7 +175,7 @@ class ProductController extends Controller
 
         }
 
-        return $result; 
+        return $result;
     }
 
     private function getValidationMessages(string $type)
@@ -187,7 +188,7 @@ class ProductController extends Controller
             "category_id.integer" => "カテゴリIDを数字で入力してください。"
         ];
 
-        if($type == "add") {
+        if ($type == "add") {
 
             $result["id.required"] = "IDを入力しないと編集できません。";
             $result["id.integer"] = "数字を入力してください。";

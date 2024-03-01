@@ -35,6 +35,15 @@
             * {
                 text-align: center
             }
+
+            input[type="number"] {
+                border: 1px solid #ccc; /* 設定邊框 */
+                border-radius: 5px; /* 設定圓角 */
+                width: 100px; /* 設定寬度 */
+                height: 30px; /* 設定高度 */
+                color: #333; /* 文字色 */
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            }
             
 
         </style>

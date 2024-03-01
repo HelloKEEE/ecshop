@@ -1,6 +1,8 @@
 <?php
 namespace App\Repository;
 
+use App\Models\Product;
+
 interface ProductRepositoryInterface
 {
     
@@ -20,6 +22,10 @@ interface ProductRepositoryInterface
     
     public function dodetail(array $data);
 
+    public function checkStock(Product $product, int $quantity): bool;
 
+    public function reduceStock(Product $product, int $quantity);
+
+    public function addStock(Product $product, int $quantity);
 
 }

@@ -18,9 +18,9 @@ class Cart extends Model
     public $timestamps = true;
 
     
-    public function products(): BelongsTo
+    public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Product::class,'product_id','id');
     }
 
     public function user(): BelongsTo

@@ -1,70 +1,84 @@
 @extends('layouts.app')
- 
-@section('title', 'Products')
- 
+
+@section('title', 'product detail')
+
 @section('content')
-    <div class="">
-        <div class="badge bg-secondary text-wrap" style="width: 60rem;">
-            All products
-        </div>
-
-        <div class="badge btn btn-outline-primary text-wrap" style="width: 20rem;">
-            <p><a href="{{ route('product.add') }}">新規作成</a></p>
-        </div>
+    <body class="antialiased">
+        <div class="">
+            <div class="badge bg-secondary text-wrap" style="width: 60rem;">
+            your cart's detail
+            </div>
             <br/>
+            <div style="text-align: right;" >
+                  <form method="POST" action="{{ route('cart.clear') }}" style="display: inline-block; margin-right: 250px; margin-top: 20px; margin-bottom: 20px;">
+                      @csrf
+                      <button type="submit" class="btn btn-danger">clear all</button>
+                  </form>
+            </div>
 
-            <div class="container">
-        
-            <h2>Search data</h2>
+            @error('quantity')
+            <div class="alert alert-danger">{{ $message }}</div>
+            @enderror
 
-            <form method="GET" action="{{ route('product.index')}}">
-                <table class="table table-striped" style="width: 60% ; margin:auto; ">
-                    <tbody>
-                        <tr>
-                            <th>ID:</th>
-                            <th><input type="text" name="id" value="{{ $_GET["id"] ?? old('id')  }}"></input></th>
-                        </tr>
-                    
-                        <tr>
-                            <th>Name:</th>
-                            <th><input type="text" name="name" value="{{ $_GET["name"] ?? '' }}"></input></th>
-                        </tr>
-                        <tr>
-                            <th>Price:</th>
-                            <th><input type="text" name="price" value="{{ $_GET["price"] ?? '' }}"></input></th>
-                        </tr>
-                    </tbody>
-                </table>
-                <button type="submit" class="btn btn-primary" >Search</button>
-            </form>    
+            <table class="table table-striped" style="width: 60% ; margin:auto; vertical-align: middle;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Your Name</th>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th width="100"></th>
+                        <th>Product's stock</th>
+                        <th width="100">Newest Order</th>
+                        <th></th>
+                        <th>move</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                @foreach ($carts as $cart)
+                    <tr>
+                        <td>{{ $cart->id}}</td>
+                        <td>{{ $cart->user->name}}</td>
+                        <td>{{ $cart->product->name}}</td>
+                        <form method="POST" action="{{ route('cart.update')}}">
+                            @csrf
+                            <td><input type="number" name="quantity" value="{{ $cart->quantity }}" min="0" max="{{ $cart->product->stock + $cart->quantity }}">
+                            <input type="hidden" name="product_id" value="{{ $cart->product_id }}">
+                                <input type="hidden" name="cart_quantity" value="{{ $cart->quantity }}"></td>
+                            <td><button class="btn btn-dark" type="submit" >変更</button></td>
+                        </form>
+                        <td>{{ $cart->product->stock}}</td>
+                        <td>{{ $cart->updated_at}}</td>
+
+                        <td><form method="POST" action="{{ route('cart.increase') }}">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $cart->product->id }}">
+                            <button type="submit" class="btn btn-dark">増加</button>
+                            </form></td>
+
+                        <td><form method="POST" action="{{ route('cart.reduce') }}">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $cart->product->id }}">
+                                <button type="submit" class="btn btn-dark">減る</button>
+                            </form></td>
+
+                        <td><form method="POST" action="{{ route('cart.remove') }}">
+                            @csrf <!-- Laravel CSRF 保護 -->
+                            <!-- 在這裡添加您想要傳遞的值 -->
+                            <input type="hidden" name="product_id" value="{{ $cart->product->id }}">
+                            <button type="submit" class="btn btn-dark">削除</button>
+                        </form></td>
 
 
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+            <br>
 
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>id</th>
-                    <th>Name</th>
-                    <th>price</th>
-                    <th>category ID</th>
-                    <th>Move</th>
-                </tr>
-            </thead>
-            <tbody>
 
-            @foreach ($products as $product)
-                <tr>
-                    <td>{{ $product->id }}</td>
-                    <td>{{ $product->name }}</td>
-                    <td>{{ $product->price }}</td>
-                    <th>{{ $product->category_id }}</th>
-                    <td><a href="{{ route('product.detail', ['id' => $product->id]) }}">詳細</a>
-                        <a href="{{ route('product.edit', ['id' => $product->id]) }}">編集</a>
-                        <a href="{{ route('product.delete', ['id' => $product->id]) }}">削除</a></td>
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
+    </body>
+
 @endsection

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Service\SessionCartService;
 use Illuminate\Support\ServiceProvider;
 use App\Repository\CategoryRepositoryInterface;
 use App\Repository\CategoryRepository;
@@ -11,6 +12,7 @@ use App\Repository\UserRepositoryInterface;
 use App\Repository\UserRepository;
 use App\Repository\CartRepositoryInterface;
 use App\Repository\CartRepository;
+use App\Service\CartServiceInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
 
         $this->app->bind(CartRepositoryInterface::class, CartRepository::class);
+
+        $this->app->bind(CartServiceInterface::class, SessionCartService::class);
     }
 
     /**

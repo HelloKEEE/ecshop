@@ -20,7 +20,7 @@
                 <input type="text" name="user_name" value="{{ session('user_name') }}" readonly></input>
                 <input type="hidden" name="user_id" value="{{ session('user_id') }}" readonly></input>
                 <p>Product's ID:</p>
-                <input type="text" name="product_id" value="{{ old('product_id') }}"></input>
+                <input type="text" name="product_id" value="{{ $product_id ?? old('product_id') }}"></input>
                 @error('product_id')
                     <div class="alert alert-danger">{{ $message }}</div>
                 @enderror
